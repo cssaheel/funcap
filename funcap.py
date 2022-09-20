@@ -149,9 +149,9 @@ class FunCapHook(DBG_Hooks):
         self.colors = kwargs.get('colors', True)
         self.output_console = kwargs.get('output_console', True)
         self.overwrite_existing = kwargs.get('overwrite_existing', False)
-        self.recursive = kwargs.get('recursive', False)
-        self.code_discovery = kwargs.get('code_discovery', False) # for obfuscators
-        self.code_discovery_nojmp = kwargs.get('code_discovery_nojmp', False)
+        self.recursive = kwargs.get('recursive', True)
+        self.code_discovery = kwargs.get('code_discovery', True) # for obfuscators
+        self.code_discovery_nojmp = kwargs.get('code_discovery_nojmp', True)
         self.code_discovery_stop = kwargs.get('code_discovery_stop', False)
         self.no_dll = kwargs.get('no_dll', False)
         self.strings_file = kwargs.get('strings', os.path.expanduser('~') + "/funcap_strings.txt")
@@ -206,7 +206,7 @@ class FunCapHook(DBG_Hooks):
         Add breakpoints on all function starts
         '''
         for f in list(Functions()):
-            add_bpt(f)
+            add_bpt(f, 1, ida_idd.BPT_DEFAULT)
 
     def addFuncRet(self):
         '''
@@ -220,7 +220,7 @@ class FunCapHook(DBG_Hooks):
                 if is_code(get_full_flags(head)):
 
                     if self.is_ret(head):
-                        add_bpt(head)
+                        add_bpt(head, 1, ida_idd.BPT_DEFAULT)
 
     def addCallee(self):
         '''
@@ -324,7 +324,7 @@ class FunCapHook(DBG_Hooks):
         '''
 
         self.stop_points.append(ea)
-        add_bpt(ea)
+        add_bpt(ea, 1, ida_idd.BPT_DEFAULT)
 
     ###
     # END of public interface
@@ -344,7 +344,7 @@ class FunCapHook(DBG_Hooks):
             if is_code(get_full_flags(head)):
 
                 if self.is_call(head):
-                    add_bpt(head)
+                    add_bpt(head, 1, ida_idd.BPT_DEFAULT)
 
     def add_call_and_jump_bp(self, start_ea, end_ea):
         '''
@@ -361,7 +361,7 @@ class FunCapHook(DBG_Hooks):
             if is_code(get_full_flags(head)):
 
                 if (self.is_call(head) or self.is_jump(head)):
-                    add_bpt(head)
+                    add_bpt(head, 1, ida_idd.BPT_DEFAULT)
 
 
     def get_num_args_stack(self, addr):
@@ -767,6 +767,8 @@ class FunCapHook(DBG_Hooks):
         discovered = ""
 
         for char in data:
+            char = ord(char)
+
             # if we've hit a non printable char, break
             if char < 32 or char > 126:
                 break
@@ -794,6 +796,8 @@ class FunCapHook(DBG_Hooks):
         discovered = ""
 
         for char in data:
+            char = ord(char)
+
             if char >= 32 and char <= 126:
                 discovered += chr(char)
             elif print_dots:
@@ -819,6 +823,8 @@ class FunCapHook(DBG_Hooks):
 
         for char in data:
             if every_other:
+                char = ord(char)
+
                 # if we've hit a non printable char, break
                 if char < 32 or char > 126:
                     break
@@ -849,6 +855,8 @@ class FunCapHook(DBG_Hooks):
             dump  += "%02x " % ord(byte)
 
         for byte in data:
+            byte = ord(byte)
+
             if byte >= 32 and byte <= 126:
                 dump += chr(byte)
             else:
@@ -897,6 +905,8 @@ class FunCapHook(DBG_Hooks):
         if not data_string:
             data_string = self.get_printable_string(data, print_dots)
 
+        # to_strings_file = data_string = self.get_printable_string(data, print_dots)
+
 
         # shouldn't have been here but the idea of string dumping came out to me later on
         # TODO: re-implement. We could also take much longer strings
@@ -933,6 +943,8 @@ class FunCapHook(DBG_Hooks):
 
         if not data_string:
             data_string = self.get_printable_string(data, print_dots)
+        
+        # data_string = self.get_printable_string(data, print_dots)
 
         return repr(data_string).strip("'")
 
@@ -1256,7 +1268,7 @@ class FunCapHook(DBG_Hooks):
             user_bp = True
         else:
             user_bp = False
-            add_bpt(ret_addr) # catch return from the function if not user-added breakpoint
+            add_bpt(ret_addr, 1, ida_idd.BPT_DEFAULT) # catch return from the function if not user-added breakpoint
 
         # fetch the operand for "ret" - will be needed when we will capture the return from the function
         ret_shift = self.calc_ret_shift(ea)
@@ -1893,7 +1905,7 @@ class Auto:
         d.off()
         d.delAll()
         start = get_entry_ordinal(0)
-        add_bpt(start)
+        add_bpt(start, 1, ida_idd.BPT_DEFAULT)
         segname = get_segm_name(start)
         start_process('', '', '')
         wait_for_next_event(WFNE_SUSP, -1);
@@ -1912,7 +1924,7 @@ class Auto:
         d.off()
         d.delAll()
         start = get_entry_ordinal(0)
-        add_bpt(start)
+        add_bpt(start, 1, ida_idd.BPT_DEFAULT)
         start_process('', '', '')
         wait_for_next_event(WFNE_SUSP, -1);
         print("Auto: program entry point reached")
@@ -1930,7 +1942,7 @@ class Auto:
         d.off()
         d.delAll()
         start = get_entry_ordinal(0)
-        add_bpt(start)
+        add_bpt(start, 1, ida_idd.BPT_DEFAULT)
         start_process('', '', '')
         wait_for_next_event(WFNE_SUSP, -1);
         print("Auto: program entry point reached")
