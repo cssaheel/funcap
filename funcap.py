@@ -151,7 +151,7 @@ class FunCapHook(DBG_Hooks):
         self.overwrite_existing = kwargs.get('overwrite_existing', False)
         self.recursive = kwargs.get('recursive', True)
         self.code_discovery = kwargs.get('code_discovery', True) # for obfuscators
-        self.code_discovery_nojmp = kwargs.get('code_discovery_nojmp', True)
+        self.code_discovery_nojmp = kwargs.get('code_discovery_nojmp', False)
         self.code_discovery_stop = kwargs.get('code_discovery_stop', False)
         self.no_dll = kwargs.get('no_dll', False)
         self.strings_file = kwargs.get('strings', os.path.expanduser('~') + "/funcap_strings.txt")
