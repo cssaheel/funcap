@@ -1952,6 +1952,7 @@ class Auto:
         d.on()
         d.code_discovery = True
         d.addCJ(func = get_func_name(start))
+        d.hookSeg()
         resume_process()
 
 ###
@@ -1980,6 +1981,9 @@ if debugger:
         d = ARMCapHook()
     else:
         raise ValueError("FunCap: architecture not supported")
-
+    
     a = Auto()
-    d.on()
+    a.win_code_discovery()
+
+    # d.on()
+    # d.hookSeg()
